@@ -1,9 +1,14 @@
-# Reasoning Models Know When They're Right: Probing Hidden States for Self-Verification
+<h1 align="center">Reasoning Models Know When They're Right</h1>
 
 
 <div align="center">
   
-[📄 Paper](https://arxiv.org/pdf/2504.05419) | [Model](https://drive.usercontent.google.com/download?id=140GPBMca27-hAL5P8phK_jl2O9mReqo8&export=download&authuser=1&confirm=t&uuid=2302ab95-eb89-444e-aeed-8738a2c1d8b2&at=APcmpoyoq2GkpsrhGUK9W6EpyYoO:17446852776) | [🤗 Data]()
+<p style="font-size: 18px;">
+📄 <a href="https://arxiv.org/pdf/2504.05419">Paper</a> |
+🔗 <a href="https://drive.usercontent.google.com/download?id=140GPBMca27-hAL5P8phK_jl2O9mReqo8&export=download&authuser=1&confirm=t&uuid=2302ab95-eb89-444e-aeed-8738a2c1d8b2&at=APcmpoyoq2GkpsrhGUK9W6EpyYoO:17446852776">Model</a> |
+🤗 <a href="#">Data (Coming soon)</a>
+</p>
+
 
 </div>
 
@@ -12,7 +17,7 @@ Official code for ["Reasoning Models Know When They're Right: Probing Hidden Sta
 
 ![](./figures/main.png)
 
-## Table of Contents
+## 🔖 Table of Contents
 
 
 - [Setup and Requirements](#setup-and-requirements)
@@ -25,27 +30,29 @@ Official code for ["Reasoning Models Know When They're Right: Probing Hidden Sta
 
 
 
-## Setup and Requirements
+## 🔧 Setup and Requirements
 
 ```bash
-# Install required packages
-pip install vllm transformers torch bitsandbytes
-pip install google-genai  # For labeling with Gemini API
+conda create -n probe
+conda activate probe
+pip install -r requirements.txt
+# download module for spacy (required for segmenting reasoning chunks)
+python -m spacy download en_core_web_sm
 ```
 
-## Download Trained Probes
+## ⬇️ Download Trained Probes
 - We provide trained probes for different model and dataset combinations. You can download them [here](https://drive.usercontent.google.com/download?id=140GPBMca27-hAL5P8phK_jl2O9mReqo8&export=download&authuser=1&confirm=t&uuid=2302ab95-eb89-444e-aeed-8738a2c1d8b2&at=APcmpoyoq2GkpsrhGUK9W6EpyYoO:17446852776).
     - the downloaded file contains a series of trained probe `pt` file.
     - the naming of each `pt` file follows `{model_name}_{train_data}_best_probe-{hyperparam_setting}.pt`
 - If you want to use the probe off-the-shelf on other data, we recommend using the probe trained on **MATH** data as they usually show better generalizability.
-- See for how to [prepare your own test data](#data-preparation) and how to [evaluate the probe](#test-probes). 
+- See below for how to [prepare your own test data](#data-preparation) and how to [evaluate the probe](#test-probes). 
 
 
-## Train Your Own Probe
+## 🚀 Train Your Own Probe
 
 ### Data Preparation
 #### 1. Generate CoT Reasoning
-Generate Chain-of-Thought reasoning for each example in your dataset.
+Generate Chain-of-Thought reasoning for each example in your dataset. We provide generated CoTs in [`./initial_cot`](./initial_cot).
 
 ```bash
 # Set model path
@@ -108,17 +115,17 @@ Extract hidden state representations for each reasoning chunk. Note that to save
 model_name=DeepSeek-R1-Distill-Qwen-1.5B
 model_path=/path/to/your/model/$model_name
 dataset=math-train
-base_name=${model_name}_${dataset}_rollout_temperature0.6
-
-# Generate embeddings in chunks
-for chunk_id in {1..50}; do
-    python -u src/get_representation.py \
-        --base_name $base_name \
-        --model_name $model_path \
-        --save_path "./model_embeds/${model_name}_${dataset}" \
-        --bs 64 \
-        --chunk_id $chunk_id \
-        --chunk_size 200
+temperature=0.6
+input_file=./labeled_cot/labeled_intermediate_answers_${model_name}_${dataset}_rollout_temperature${temperature}.jsonl
+for file_id in {0..19}
+do
+python -u src/get_representation.py \
+    --input_file $input_file \
+    --model_name $model_path \
+    --save_path ./model_embeds/${model_name}_${dataset} \
+    --bs 16 \
+    --file_id $file_id \
+    --file_size 50 # file size measured by number of questions, should not be too large because that would affect training data shuffling
 done
 ```
 ### Train Probes
@@ -155,7 +162,7 @@ For data and models used in our paper, you can replicate the results with best h
 
 ### Test Probes
 
-To test your probe on test datase, first follow [data preparation steps](#data-preparation) as above to obtain representation on test data in the same manner. Then evaluate the best trained probe on your test data.
+To test your probe on test data, first follow [data preparation steps](#data-preparation) as above to obtain representations on test data in the same manner. Then evaluate the best trained probe on your test data.
 
 ```bash
 model=DeepSeek-R1-Distill-Qwen-1.5B
@@ -196,7 +203,7 @@ python -u ./test_predictor_with_class_weights.py \
 ```
 
 
-## Citation
+## 📝 Citation
 
 If you find our code or data useful, please cite our paper:
 ```bibtex
