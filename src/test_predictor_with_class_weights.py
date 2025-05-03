@@ -8,8 +8,6 @@ from .dataloader import *
 import numpy as np
 import argparse
 from sklearn.metrics import brier_score_loss
-import sys
-sys.path.append("../grid_search/")
 from compute_metrics import process_file
 import os
 from probe_model import load_model, hs_dict
