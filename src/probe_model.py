@@ -31,12 +31,12 @@ class LinearProbe(nn.Module):
         x = self.output(x)  # Raw logits
         return x
 
-def load_model(input_size, hidden_size, output_size, ckpt_weight=None):
+def load_model(input_size, hidden_size, output_size, ckpt_weights=None):
     if hidden_size==0:
         model = LinearProbe(input_size, output_size)
     else:
         model = MLPProbe(input_size, hidden_size, output_size)
-    if ckpt_weight is not None:
-        model.load_state_dict(ckpt_weight)
+    if ckpt_weights is not None:
+        model.load_state_dict(ckpt_weights)
     return model
 
