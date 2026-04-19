@@ -1,0 +1,24 @@
+Job ID:        12203099
+Node:          node3112
+Working dir:   /home/aymelgad/reasoning_models_optimal_stopping
+Model:         gpt-5.4-mini
+Source model:  DeepSeek-R1-Distill-Qwen-1.5B
+Dataset:       math-train
+Data file:     ./initial_cot/DeepSeek-R1-Distill-Qwen-1.5B_math-train_rollout_temperature0.6.jsonl
+Segments:      ./processed_cot/segmented_CoT_DeepSeek-R1-Distill-Qwen-1.5B_math-train_rollout_temperature0.6_merged.json
+Save path:     ./labeled_cot
+Max tokens:    150000
+Poll interval: 60s
+id2ans: 1000, id2reasoning: 1000
+Wrote 1000 batch requests to labeled_cot/_batch_openai/requests_DeepSeek-R1-Distill-Qwen-1.5B_math-train_rollout_temperature0.6.jsonl
+Uploaded input file: file-Qk8paeuqKPUR6VqVJbeT7j
+Submitted batch job: batch_69e558b6df088190b8fe6bfaf1ee0c45
+[18:35:35] batch_69e558b6df088190b8fe6bfaf1ee0c45 status=validating completed=0/0 failed=0
+[18:36:35] batch_69e558b6df088190b8fe6bfaf1ee0c45 status=validating completed=0/0 failed=0
+[18:37:35] batch_69e558b6df088190b8fe6bfaf1ee0c45 status=in_progress completed=0/1000 failed=0
+[18:38:35] batch_69e558b6df088190b8fe6bfaf1ee0c45 status=in_progress completed=0/1000 failed=211
+[18:39:36] batch_69e558b6df088190b8fe6bfaf1ee0c45 status=in_progress completed=0/1000 failed=670
+[18:40:36] batch_69e558b6df088190b8fe6bfaf1ee0c45 status=finalizing completed=0/1000 failed=1000
+[18:41:36] batch_69e558b6df088190b8fe6bfaf1ee0c45 status=finalizing completed=0/1000 failed=1000
+[18:42:36] batch_69e558b6df088190b8fe6bfaf1ee0c45 status=completed completed=0/1000 failed=1000
+1000 per-request errors saved to labeled_cot/_batch_openai/errors_DeepSeek-R1-Distill-Qwen-1.5B_math-train_rollout_temperature0.6.jsonl; first 5: [('0', {'id': 'batch_req_69e559cbd3508190a7c571e669ec6a7c', 'custom_id': '0', 'response': {'status_code': 400, 'request_id': '244a372b-5815-4537-9f12-9e2339c05038', 'body': {'error': {'message': "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}}, 'error': None}), ('1', {'id': 'batch_req_69e559cbe3c88190bf10ced3ce6b7b16', 'custom_id': '1', 'response': {'status_code': 400, 'request_id': '56ad2bad-7977-4e24-b9f9-00203339bf5c', 'body': {'error': {'message': "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}}, 'error': None}), ('10', {'id': 'batch_req_69e559cbf0388190a0b823da522bec0b', 'custom_id': '10', 'response': {'status_code': 400, 'request_id': '540c0251-3cf5-4995-aada-3059f561a85f', 'body': {'error': {'message': "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}}, 'error': None}), ('100', {'id': 'batch_req_69e559cbe2788190bb6527a9343c6196', 'custom_id': '100', 'response': {'status_code': 400, 'request_id': '8dadbf59-36d6-4aef-87a8-9d72be1e34af', 'body': {'error': {'message': "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}}, 'error': None}), ('101', {'id': 'batch_req_69e559cbd61081908e7c875c00e3eb93', 'custom_id': '101', 'response': {'status_code': 400, 'request_id': '2d170611-bc6c-472d-a9ec-85fa6d9df5f6', 'body': {'error': {'message': "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.", 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'unsupported_parameter'}}}, 'error': None})]

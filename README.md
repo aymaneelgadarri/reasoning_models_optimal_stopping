@@ -27,6 +27,7 @@ Official code for ["Reasoning Models Know When They're Right: Probing Hidden Sta
   - [Train Probes](#train-probs)
   - [Test Probes](#test-probes)
 - [Section 5: Early-Exit Verifier Evaluation](#section-5-early-exit-verifier-evaluation)
+- [Optimal-Stopping Policy Head (alternate training/eval mode)](#-optimal-stopping-policy-head-alternate-trainingeval-mode)
 
 
 
@@ -278,6 +279,174 @@ last-non-pad-token gather (`attention_mask.sum(dim=1) - 1`) instead of
 `last_hidden_state[:, -1, :]`, which previously could return the embedding
 of a pad token for shorter sequences in a right-padded batch.
 
+## 🧮 Optimal-Stopping Policy Head (alternate training/eval mode)
+
+In addition to the per-chunk correctness probe, we provide a second
+training/eval mode that turns the **same MLP head** (same hidden-state
+features, same `MLPProbe` / `LinearProbe` architecture, same checkpoint
+format) into an *optimal-stopping policy*.  The head still emits one
+scalar per chunk, but instead of training it with BCE we train it by
+maximising the expected reward of the induced stopping distribution.
+
+Two formulations are implemented and selectable via `--formulation`:
+
+- `product` -- classical product-of-continue-probabilities baseline.
+  Per-chunk score \(c_i = \sigma(z_i)\) is interpreted as a *continue*
+  probability and the survival is the cumulative product
+  \(S_i = \prod_{j \le i} c_j\).
+- `min_survival` -- new running-minimum survival formulation.  The head
+  emits \(s_i = \sigma(z_i)\) interpreted as a *candidate* survival
+  probability, and the actual survival is the running minimum
+  \(S_i = \min_{j \le i} s_j\).  This guarantees a non-increasing
+  survival sequence without the multiplicative collapse that `product`
+  suffers on long CoTs.
+
+Both formulations turn the survival sequence into a stopping
+distribution via \(\mathrm{stop}_1 = 1 - S_1\),
+\(\mathrm{stop}_i = S_{i-1} - S_i\).  The residual mass \(S_m\) is
+folded into the last chunk so the distribution sums to 1 (matching the
+"finish entire CoT == stop at last chunk" convention used elsewhere in
+the codebase).  Training maximises
+\(\sum_i \mathrm{stop}_i \cdot r_i\) where \(r_i\) is the chunk-level
+correctness label, and inference picks \(\arg\max_i \mathrm{stop}_i\).
+
+Code organisation:
+
+- `src/stopping_formulations.py` -- shared interface; both formulations
+  expose `stop_distribution(logits)` and `expected_reward(logits, rewards)`.
+- `src/dataloader_per_example.py` -- per-example loader that
+  reconstructs example boundaries by aligning the existing
+  `model_embeds/.../embed_file_<a>_<b>.pt` files with
+  `labeled_intermediate_answers_*.jsonl`.  No re-extraction needed.
+- `src/train_stopping_policy.py` -- trainer with `--formulation
+  {product, min_survival}` flag.  Saves checkpoints in the same
+  wrapped format (`{"model": ..., "pos_weight_from_train": None,
+  "formulation": ...}`) so they remain loadable with
+  `early_exit_utils.load_probe_from_ckpt`.
+- `src/eval_stopping_policy.py` -- offline evaluator that mirrors
+  `eval_early_exit.py`.  Either runs the base LM end-to-end, or loads
+  a cached `per_example_scores.json` for fast metric re-runs.
+
+### Train
+
+`train_stopping_policy.sh` is a grid-search script (the same shape as
+`train_probe.sh`).  It trains a *single* `FORMULATION` per invocation
+so the two formulations end up in distinct model directories with
+their own grid-search logs.  Sweep axes:
+
+- `LRS`            -- learning rate (default `"1e-3 1e-4 1e-5"`)
+- `HIDDEN_SIZES`   -- 0 (linear) or 16/32 (MLP) (default `"0 16 32"`)
+- `WDS`            -- weight decay (default `"0.001 0.01 0.1"`)
+- `LAMBDAS`        -- length-cost coefficient \(\lambda\) in the
+  per-chunk reward `r_i := correctness_i - lambda * i` (0-indexed).
+  Larger \(\lambda\) biases the policy toward earlier stops.  Default
+  `"0 0.01 0.05 0.1"`.
+
+```bash
+# Sweep min_survival
+FORMULATION=min_survival \
+EMBED_DIR=./model_embeds/DeepSeek-R1-Distill-Qwen-1.5B_aime_25 \
+LABELED_DATA_PATH=./labeled_cot/labeled_intermediate_answers_DeepSeek-R1-Distill-Qwen-1.5B_aime_25_rollout_temperature0.6.jsonl \
+MODEL=DeepSeek-R1-Distill-Qwen-1.5B \
+bash train_stopping_policy.sh
+
+# Sweep product (separate save dir, separate grid log)
+FORMULATION=product \
+EMBED_DIR=./model_embeds/DeepSeek-R1-Distill-Qwen-1.5B_aime_25 \
+LABELED_DATA_PATH=./labeled_cot/labeled_intermediate_answers_DeepSeek-R1-Distill-Qwen-1.5B_aime_25_rollout_temperature0.6.jsonl \
+MODEL=DeepSeek-R1-Distill-Qwen-1.5B \
+bash train_stopping_policy.sh
+```
+
+Override the grid axes from the command line, e.g.:
+
+```bash
+FORMULATION=min_survival LAMBDAS="0 0.05" HIDDEN_SIZES="0" \
+  bash train_stopping_policy.sh
+```
+
+Or invoke the Python entry-point directly for one config:
+
+```bash
+python -u src/train_stopping_policy.py \
+  --labeled_data_path ./labeled_cot/labeled_intermediate_answers_DeepSeek-R1-Distill-Qwen-1.5B_aime_25_rollout_temperature0.6.jsonl \
+  --embed_dir ./model_embeds/DeepSeek-R1-Distill-Qwen-1.5B_aime_25 \
+  --model_name DeepSeek-R1-Distill-Qwen-1.5B \
+  --formulation min_survival \
+  --hidden_size 0 --epochs 200 --lr 1e-4 --wd 1e-3 --lambda_penalty 0.05 \
+  --save_model_path ./grid_search_stopping/DeepSeek-R1-Distill-Qwen-1.5B_aime_25_min_survival/checkpoints \
+  --store_path ./grid_search_stopping/DeepSeek-R1-Distill-Qwen-1.5B_aime_25_min_survival/store
+```
+
+Each run appends a JSON row to
+`<SAVE_DIR>/stopping_grid_search_result.jsonl` so you can sort by
+`best_val_expected_reward` to pick a winner and feed its `best_ckpt`
+into `eval_stopping_policy.py`.
+
+### Evaluate
+
+If you already ran `eval_early_exit.sh` once, you can re-score offline
+without re-loading the base LM by pointing at the cached scores:
+
+```bash
+python -u src/eval_stopping_policy.py \
+  --probe_ckpt ./grid_search_stopping/DeepSeek-R1-Distill-Qwen-1.5B_aime_25/checkpoints/best_stopping_min_survival-hs0-lr0.0001-wd0.001-s42.pt \
+  --model_name DeepSeek-R1-Distill-Qwen-1.5B \
+  --formulation min_survival \
+  --scores_path ./early_exit_results/DeepSeek-R1-Distill-Qwen-1.5B_aime_25/per_example_scores.json \
+  --output_dir ./stopping_results/DeepSeek-R1-Distill-Qwen-1.5B_aime_25_min_survival
+```
+
+For a fresh evaluation from a new probe checkpoint, run the full
+pipeline (matches `eval_early_exit.sh`):
+
+```bash
+PROBE_CKPT=/path/to/best_stopping_min_survival-...-pt \
+MODEL_NAME=DeepSeek-R1-Distill-Qwen-1.5B \
+DATASET=aime_25 \
+FORMULATION=min_survival \
+bash eval_stopping_policy.sh
+```
+
+Outputs (under `--output_dir`):
+
+- `per_example_scores.json` -- per-chunk probe logits/probabilities,
+  correctness labels and cumulative assistant-side token counts.
+- `accuracy_vs_tokens_{expected,argmax}.png` -- produced by
+  `src/plot_stopping_policy.py`.  For each formulation the script
+  groups the grid runs by `lambda_penalty`, picks the best
+  other-hyperparameters configuration *for that lambda* (default
+  selection metric: `best_val_expected_reward`), evaluates the
+  winning checkpoint on the cached embeddings and plots one point
+  per lambda.  Optionally overlays the no-exit / static / threshold
+  baselines from `early_exit_metrics.json` on the same axes.  Example:
+
+  ```bash
+  python -u src/plot_stopping_policy.py \
+    --grid_result ./grid_search_stopping/DeepSeek-R1-Distill-Qwen-1.5B_aime_25_min_survival/stopping_grid_search_result.jsonl \
+    --grid_result ./grid_search_stopping/DeepSeek-R1-Distill-Qwen-1.5B_aime_25_product/stopping_grid_search_result.jsonl \
+    --model_name DeepSeek-R1-Distill-Qwen-1.5B \
+    --embed_dir ./model_embeds/DeepSeek-R1-Distill-Qwen-1.5B_aime_25 \
+    --labeled_data_path ./labeled_cot/labeled_intermediate_answers_DeepSeek-R1-Distill-Qwen-1.5B_aime_25_rollout_temperature0.6.jsonl \
+    --model_path $HOME/models/DeepSeek-R1-Distill-Qwen-1.5B \
+    --early_exit_metrics ./early_exit_results/DeepSeek-R1-Distill-Qwen-1.5B_aime_25/early_exit_metrics.json \
+    --output_dir ./stopping_results/DeepSeek-R1-Distill-Qwen-1.5B_aime_25_curve \
+    --title_suffix "DeepSeek-R1-Distill-Qwen-1.5B / aime_25"
+  ```
+
+- `stopping_policy_metrics.json` -- accuracy, average tokens used, and
+  token ratio/reduction under **two** readouts of the trained policy:
+
+  - `argmax_*`   -- pick a single chunk via \(\arg\max_i \mathrm{stop}_i\)
+    and report its accuracy/cost.  Deterministic decoding rule.
+  - `expected_*` -- average under the full stopping distribution:
+    \(\mathbb{E}[\mathrm{acc}] = \sum_i \mathrm{stop}_i \cdot \mathrm{correctness}_i\)
+    and similarly for tokens.  Equivalent to the training objective at
+    \(\lambda=0\) and the most faithful summary of the trained policy
+    because it consumes the entire distribution rather than collapsing
+    to its mode.  Chunks with unknown labels are masked out and the
+    remaining mass is renormalised so they do not bias the average.
+
 ## 📝 Citation
 
 If you find our code or data useful, please cite our paper:
@@ -292,3 +461,8 @@ If you find our code or data useful, please cite our paper:
       url={https://arxiv.org/abs/2504.05419}, 
 }
 ```
+
+Commands for evaluating:
+
+MODEL=DeepSeek-R1-Distill-Qwen-1.5B DATASET=math-train bash eval_stopping_per_lambda.sh
+

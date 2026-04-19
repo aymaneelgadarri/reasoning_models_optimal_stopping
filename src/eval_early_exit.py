@@ -75,6 +75,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--scores_only", action="store_true",
                         help="Only recompute the metrics from a previously saved "
                              "per-example scores JSON without re-running the LM.")
+    parser.add_argument("--embed_dir", type=str, default=None,
+                        help="If provided, score the probe directly over the "
+                             "cached hidden states in this directory (the same "
+                             "embed_file_*.pt produced by get_representation.py) "
+                             "instead of re-running the base LM.  Strongly "
+                             "recommended whenever embeddings have already been "
+                             "extracted -- it skips the expensive LM forward "
+                             "pass and matches the probe's training-time inputs "
+                             "exactly.")
     return parser.parse_args()
 
 
@@ -319,6 +328,96 @@ def evaluate_strategies(
 
 
 # ---------------------------------------------------------------------------
+# Cached-embedding scoring (no LM forward)
+# ---------------------------------------------------------------------------
+
+def score_from_cached_embeddings(args) -> List[Dict]:
+    """Score the probe over hidden states cached by ``get_representation.py``.
+
+    Equivalent to the standard pipeline but skips the (expensive) base-LM
+    forward pass.  This is what the probe was trained on, so it's the most
+    faithful evaluation when the embeddings already exist on disk.
+    """
+
+    from dataloader_per_example import PerExampleStoppingDataset
+
+    print(f"Loading cached embeddings from {args.embed_dir}")
+    dataset = PerExampleStoppingDataset(
+        labeled_data_path=args.labeled_data_path,
+        embed_dir=args.embed_dir,
+        max_examples=(args.max_examples if args.max_examples > 0 else None),
+        require_full_labels=False,
+    )
+
+    labeled_index: Dict[str, Dict] = {}
+    with open(args.labeled_data_path, "r") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            obj = json.loads(line)
+            labeled_index[str(obj.get("id"))] = obj
+
+    # We still need a tokenizer for accurate per-chunk token counts, but
+    # loading just the tokenizer is essentially free and keeps the token
+    # cost numbers comparable to the LM-forward path.
+    from transformers import AutoTokenizer
+    from early_exit_utils import (
+        configure_tokenizer_for_left_padding,
+        count_assistant_tokens,
+    )
+
+    tokenizer = None
+    if args.model_path:
+        tokenizer = AutoTokenizer.from_pretrained(args.model_path, use_auth_token=True)
+        configure_tokenizer_for_left_padding(tokenizer)
+
+    probe_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    probe = load_probe_from_ckpt(
+        args.probe_ckpt,
+        model_name=args.model_name,
+        hidden_size=args.probe_hidden_size,
+    ).to(probe_device)
+
+    per_example_scores: List[Dict] = []
+    with torch.no_grad():
+        for ex in tqdm(dataset.examples, desc="Scoring (cached)"):
+            embeds = ex.embeddings.to(probe_device, dtype=torch.float32)
+            logits = probe(embeds).squeeze(-1)
+            probs = torch.sigmoid(logits).detach().cpu().tolist()
+            if isinstance(probs, float):
+                probs = [probs]
+
+            src = labeled_index.get(str(ex.example_id), {})
+            chunks = src.get("reasoning_chunks") or []
+            labels = src.get("correctness_labels") or []
+            if tokenizer is not None and chunks:
+                cum_tokens = count_assistant_tokens(tokenizer, chunks)
+            else:
+                cum_tokens = list(range(1, len(probs) + 1))
+
+            correctness: List[int] = []
+            for i in range(len(probs)):
+                if i < len(labels):
+                    c = labels[i].get("correctness")
+                    correctness.append(int(bool(c)) if c is not None else -1)
+                else:
+                    correctness.append(int(ex.rewards[i].item() > 0.5))
+
+            per_example_scores.append({
+                "id": ex.example_id,
+                "question": src.get("question"),
+                "answer": src.get("answer"),
+                "num_chunks": len(probs),
+                "probe_probs": probs,
+                "correctness": correctness,
+                "results": [c.get("result") for c in labels[: len(probs)]],
+                "cum_tokens": cum_tokens,
+            })
+    return per_example_scores
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -337,6 +436,11 @@ def main() -> None:
         print(f"Loading cached scores from {scores_path}")
         with open(scores_path, "r") as f:
             per_example_scores = json.load(f)
+    elif args.embed_dir:
+        per_example_scores = score_from_cached_embeddings(args)
+        with open(scores_path, "w") as f:
+            json.dump(per_example_scores, f)
+        print(f"Wrote per-example scores to {scores_path}")
     else:
         with open(args.labeled_data_path, "r") as f:
             dataset = [json.loads(line) for line in f if line.strip()]

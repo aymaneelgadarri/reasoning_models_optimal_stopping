@@ -11,7 +11,7 @@ SAVE_PATH="./labeled_cot"
 mkdir -p "$SAVE_PATH"
 
 model=DeepSeek-R1-Distill-Qwen-1.5B
-data=aime_25
+data=math-train
 DATAFILE_PATH="./initial_cot/${model}_${data}_rollout_temperature0.6.jsonl"
 SEGMENT_PATH="./processed_cot/segmented_CoT_${model}_${data}_rollout_temperature0.6_merged.json"
 

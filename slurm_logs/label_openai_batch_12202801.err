@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/orcd/home/002/aymelgad/reasoning_models_optimal_stopping/src/label_answer_correctness_openai_batch.py", line 35, in <module>
+    from label_answer_correctness import (
+  File "/orcd/home/002/aymelgad/reasoning_models_optimal_stopping/src/label_answer_correctness.py", line 11, in <module>
+    from google import genai
+  File "/home/aymelgad/.local/lib/python3.12/site-packages/google/genai/__init__.py", line 21, in <module>
+    from .client import Client
+  File "/home/aymelgad/.local/lib/python3.12/site-packages/google/genai/client.py", line 24, in <module>
+    from ._api_client import BaseApiClient
+  File "/home/aymelgad/.local/lib/python3.12/site-packages/google/genai/_api_client.py", line 48, in <module>
+    from google.auth.transport.requests import AuthorizedSession
+  File "/home/aymelgad/.local/lib/python3.12/site-packages/google/auth/transport/requests.py", line 43, in <module>
+    from google.oauth2 import service_account
+  File "/home/aymelgad/.local/lib/python3.12/site-packages/google/oauth2/service_account.py", line 78, in <module>
+    from google.auth import _service_account_info
+  File "/home/aymelgad/.local/lib/python3.12/site-packages/google/auth/_service_account_info.py", line 20, in <module>
+    from google.auth import crypt
+  File "/home/aymelgad/.local/lib/python3.12/site-packages/google/auth/crypt/__init__.py", line 41, in <module>
+    from google.auth.crypt import es
+  File "/home/aymelgad/.local/lib/python3.12/site-packages/google/auth/crypt/es.py", line 21, in <module>
+    import cryptography.exceptions
+ModuleNotFoundError: No module named 'cryptography'

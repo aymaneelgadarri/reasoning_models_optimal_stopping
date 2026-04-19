@@ -1,0 +1,73 @@
+{
+  "args": {
+    "labeled_data_path": "./labeled_cot/labeled_intermediate_answers_DeepSeek-R1-Distill-Qwen-1.5B_aime_25_rollout_temperature0.6.jsonl",
+    "embed_dir": "./model_embeds/DeepSeek-R1-Distill-Qwen-1.5B_aime_25",
+    "model_name": "DeepSeek-R1-Distill-Qwen-1.5B",
+    "save_model_path": "./grid_search_stopping/DeepSeek-R1-Distill-Qwen-1.5B_aime_25_min_survival/checkpoints",
+    "store_path": "./grid_search_stopping/DeepSeek-R1-Distill-Qwen-1.5B_aime_25_min_survival/store",
+    "formulation": "min_survival",
+    "epochs": 200,
+    "lr": 0.0001,
+    "wd": 0.1,
+    "hidden_size": 0,
+    "lambda_penalty": 0.01,
+    "seed": 42,
+    "val_frac": 0.2,
+    "max_examples": null,
+    "patience": 10,
+    "no_fold_tail": false
+  },
+  "formulation": "min_survival",
+  "train_loss": [
+    -0.22089635825873952,
+    -0.23369538044789806,
+    -0.2501843873428048,
+    -0.2729798494422409,
+    -0.2863040181442297,
+    -0.29632894854460445,
+    -0.3015472838887945,
+    -0.30486386673458454,
+    -0.30742464144714177,
+    -0.3100476770611879,
+    -0.3121905211508939
+  ],
+  "val_expected_reward": [
+    0.24490780825726688,
+    0.2423124581691809,
+    0.23724064754787832,
+    0.23006634030025452,
+    0.22202458116225898,
+    0.21867756778374314,
+    0.21810597996227443,
+    0.21946236141957343,
+    0.21948296623304486,
+    0.2201000996865332,
+    0.22001837356947362
+  ],
+  "val_argmax_accuracy": [
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25
+  ],
+  "val_no_exit_accuracy": [
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25
+  ]
+}

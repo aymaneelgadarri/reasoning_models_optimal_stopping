@@ -88,11 +88,22 @@ def configure_tokenizer_for_left_padding(tokenizer) -> None:
     that uses ``last_hidden_state[:, -1, :]`` becomes correct.  We also
     fall back to ``eos_token`` if no pad token is defined (common for
     decoder-only LMs).
+
+    We also bump ``model_max_length`` so the tokenizer stops emitting
+    "Token indices sequence length is longer than the specified maximum
+    sequence length for this model" warnings whenever we tokenise a long
+    cumulative reasoning prefix purely for token-counting (we never feed
+    those long tokenisations back through the model).
     """
 
     tokenizer.padding_side = "left"
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
+    # 1e9 is the conventional sentinel HF tokenizers use to disable the
+    # "too long" warning.  Safe because every actual model forward in
+    # this repo passes its own attention mask + truncation.
+    if getattr(tokenizer, "model_max_length", None) is None or tokenizer.model_max_length < int(1e8):
+        tokenizer.model_max_length = int(1e9)
 
 
 def safe_last_token_hidden_state(
@@ -125,13 +136,40 @@ def count_assistant_tokens(tokenizer, reasoning_chunks: List[str]) -> List[int]:
     Token cost for early-exit metrics excludes the prompt tokens; we only
     count the reasoning text itself, which is what the model would have
     generated up to the truncation point.
+
+    Implementation note: tokenising the *joined* cumulative prefix once
+    per chunk would be O(N^2) in the chunk count and is the dominant
+    cost on long traces (thousands of chunks).  We instead tokenise each
+    chunk independently in a single batched call and accumulate the
+    lengths, plus a constant per ``\"\\n\\n\"`` separator that mirrors
+    ``build_cumulative_reasoning_text``.  This is exact for tokenisers
+    where chunk boundaries don't merge tokens (BPE / sentencepiece in
+    practice on natural-language reasoning chunks) and is within a
+    handful of tokens otherwise -- well below the granularity that the
+    early-exit / token-cost metrics care about.
     """
 
+    if not reasoning_chunks:
+        return []
+
+    chunk_token_lens = [
+        len(ids)
+        for ids in tokenizer(
+            reasoning_chunks, add_special_tokens=False,
+        ).input_ids
+    ]
+    sep_len = len(
+        tokenizer("\n\n", add_special_tokens=False).input_ids
+    )
+
     cumulative_token_counts: List[int] = []
-    for i in range(len(reasoning_chunks)):
-        text = build_cumulative_reasoning_text(reasoning_chunks, i)
-        tokens = tokenizer(text, add_special_tokens=False).input_ids
-        cumulative_token_counts.append(len(tokens))
+    running = 0
+    for i, chunk_len in enumerate(chunk_token_lens):
+        if i > 0:
+            running += sep_len  # "\n\n" between chunks i-1 and i
+        running += chunk_len
+        # build_cumulative_reasoning_text appends a trailing "\n\n"
+        cumulative_token_counts.append(running + sep_len)
     return cumulative_token_counts
 
 

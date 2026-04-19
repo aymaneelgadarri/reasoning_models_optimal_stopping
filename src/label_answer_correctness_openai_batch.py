@@ -59,7 +59,7 @@ def write_batch_jsonl(path, requests, model, temperature, max_tokens):
             body = {
                 "model": model,
                 "messages": [{"role": "user", "content": prompt}],
-                "max_tokens": max_tokens,
+                "max_completion_tokens": max_tokens,
             }
             if temperature is not None:
                 body["temperature"] = temperature

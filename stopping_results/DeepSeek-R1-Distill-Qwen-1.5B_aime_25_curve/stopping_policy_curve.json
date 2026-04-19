@@ -1,0 +1,90 @@
+{
+  "args": {
+    "grid_result": [
+      "./grid_search_stopping/DeepSeek-R1-Distill-Qwen-1.5B_aime_25_min_survival/stopping_grid_search_result.jsonl",
+      "./grid_search_stopping/DeepSeek-R1-Distill-Qwen-1.5B_aime_25_product/stopping_grid_search_result.jsonl"
+    ],
+    "model_name": "DeepSeek-R1-Distill-Qwen-1.5B",
+    "embed_dir": "./model_embeds/DeepSeek-R1-Distill-Qwen-1.5B_aime_25",
+    "labeled_data_path": "./labeled_cot/labeled_intermediate_answers_DeepSeek-R1-Distill-Qwen-1.5B_aime_25_rollout_temperature0.6.jsonl",
+    "model_path": "/home/aymelgad/models/DeepSeek-R1-Distill-Qwen-1.5B",
+    "output_dir": "./stopping_results/DeepSeek-R1-Distill-Qwen-1.5B_aime_25_curve",
+    "selection_metric": "best_val_expected_reward",
+    "max_tokens_cap": 10000,
+    "max_examples": null,
+    "no_fold_tail": false,
+    "title_suffix": "DeepSeek-R1-Distill-Qwen-1.5B / aime_25",
+    "early_exit_metrics": "./early_exit_results/DeepSeek-R1-Distill-Qwen-1.5B_aime_25/early_exit_metrics.json"
+  },
+  "grids": [
+    {
+      "formulation": "min_survival",
+      "points": [
+        {
+          "lambda_penalty": 0.0,
+          "ckpt": "./grid_search_stopping/DeepSeek-R1-Distill-Qwen-1.5B_aime_25_min_survival/checkpoints/best_stopping_min_survival-hs0-lr0.001-wd0.001-lam0.0-s42.pt",
+          "hidden_size": 0,
+          "lr": 0.001,
+          "wd": 0.001,
+          "argmax_accuracy": 0.3333333333333333,
+          "argmax_avg_selected_tokens": 8529.722222222223,
+          "argmax_avg_token_ratio": 1.1331722222222222,
+          "argmax_avg_selected_chunk": 7.222222222222222,
+          "expected_accuracy": 0.33257680469089085,
+          "expected_avg_selected_tokens": 8461.716905381945,
+          "expected_avg_token_ratio": 1.1248409431882083,
+          "expected_avg_selected_chunk": 7.113213148381975,
+          "n_examples": 18
+        },
+        {
+          "lambda_penalty": 0.01,
+          "ckpt": "./grid_search_stopping/DeepSeek-R1-Distill-Qwen-1.5B_aime_25_min_survival/checkpoints/best_stopping_min_survival-hs0-lr0.001-wd0.001-lam0.01-s42.pt",
+          "hidden_size": 0,
+          "lr": 0.001,
+          "wd": 0.001,
+          "argmax_accuracy": 0.2222222222222222,
+          "argmax_avg_selected_tokens": 3310.3888888888887,
+          "argmax_avg_token_ratio": 0.48960904967299407,
+          "argmax_avg_selected_chunk": 1.0,
+          "expected_accuracy": 0.22222232479011772,
+          "expected_avg_selected_tokens": 3310.3906758626304,
+          "expected_avg_token_ratio": 0.48960939592174096,
+          "expected_avg_selected_chunk": 1.0000028212865193,
+          "n_examples": 18
+        },
+        {
+          "lambda_penalty": 0.05,
+          "ckpt": "./grid_search_stopping/DeepSeek-R1-Distill-Qwen-1.5B_aime_25_min_survival/checkpoints/best_stopping_min_survival-hs32-lr0.001-wd0.001-lam0.05-s42.pt",
+          "hidden_size": 32,
+          "lr": 0.001,
+          "wd": 0.001,
+          "argmax_accuracy": 0.2222222222222222,
+          "argmax_avg_selected_tokens": 3310.3888888888887,
+          "argmax_avg_token_ratio": 0.48960904967299407,
+          "argmax_avg_selected_chunk": 1.0,
+          "expected_accuracy": 0.22222222946140333,
+          "expected_avg_selected_tokens": 3310.3892788357207,
+          "expected_avg_token_ratio": 0.48960911259178175,
+          "expected_avg_selected_chunk": 1.0000006755193074,
+          "n_examples": 18
+        },
+        {
+          "lambda_penalty": 0.1,
+          "ckpt": "./grid_search_stopping/DeepSeek-R1-Distill-Qwen-1.5B_aime_25_min_survival/checkpoints/best_stopping_min_survival-hs32-lr0.001-wd0.001-lam0.1-s42.pt",
+          "hidden_size": 32,
+          "lr": 0.001,
+          "wd": 0.001,
+          "argmax_accuracy": 0.2222222222222222,
+          "argmax_avg_selected_tokens": 3310.3888888888887,
+          "argmax_avg_token_ratio": 0.48960904967299407,
+          "argmax_avg_selected_chunk": 1.0,
+          "expected_accuracy": 0.22222222662596203,
+          "expected_avg_selected_tokens": 3310.389065212674,
+          "expected_avg_token_ratio": 0.4896090852432362,
+          "expected_avg_selected_chunk": 1.0000004437234666,
+          "n_examples": 18
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "args": {
+    "labeled_data_path": "./labeled_cot/labeled_intermediate_answers_DeepSeek-R1-Distill-Qwen-1.5B_math-train_rollout_temperature0.6.jsonl",
+    "embed_dir": "./model_embeds/DeepSeek-R1-Distill-Qwen-1.5B_math-train",
+    "model_name": "DeepSeek-R1-Distill-Qwen-1.5B",
+    "save_model_path": "./grid_search_stopping/DeepSeek-R1-Distill-Qwen-1.5B_math-train_min_survival/checkpoints",
+    "store_path": "./grid_search_stopping/DeepSeek-R1-Distill-Qwen-1.5B_math-train_min_survival/store",
+    "formulation": "min_survival",
+    "epochs": 200,
+    "lr": 0.001,
+    "wd": 0.01,
+    "hidden_size": 0,
+    "lambda_penalty": 0.2,
+    "seed": 42,
+    "val_frac": 0.2,
+    "max_examples": null,
+    "patience": 10,
+    "no_fold_tail": false
+  },
+  "formulation": "min_survival",
+  "train_loss": [
+    -0.6855423476014665,
+    -0.6862710496686484,
+    -0.6862646016653684,
+    -0.6862579874009126,
+    -0.6862595000782576,
+    -0.6862585780029192,
+    -0.6862619548808904,
+    -0.6862615868195976,
+    -0.6862611754778323,
+    -0.6862618524122243,
+    -0.6862629487407158
+  ],
+  "val_expected_reward": [
+    0.6883113245278121,
+    0.6883082383858012,
+    0.6882956299588232,
+    0.6882960013067236,
+    0.6882905778174795,
+    0.6882965509528454,
+    0.6882928049896201,
+    0.6882920221500608,
+    0.6882971809819277,
+    0.6882994294847132,
+    0.6882972105767989
+  ],
+  "val_argmax_accuracy": [
+    0.6883116883116883,
+    0.6883116883116883,
+    0.6883116883116883,
+    0.6883116883116883,
+    0.6883116883116883,
+    0.6883116883116883,
+    0.6883116883116883,
+    0.6883116883116883,
+    0.6883116883116883,
+    0.6883116883116883,
+    0.6883116883116883
+  ],
+  "val_no_exit_accuracy": [
+    0.8831168831168831,
+    0.8831168831168831,
+    0.8831168831168831,
+    0.8831168831168831,
+    0.8831168831168831,
+    0.8831168831168831,
+    0.8831168831168831,
+    0.8831168831168831,
+    0.8831168831168831,
+    0.8831168831168831,
+    0.8831168831168831
+  ]
+}

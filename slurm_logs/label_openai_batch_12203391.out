@@ -1,0 +1,22 @@
+Job ID:        12203391
+Node:          node1625
+Working dir:   /home/aymelgad/reasoning_models_optimal_stopping
+Model:         gpt-5.4-mini
+Source model:  DeepSeek-R1-Distill-Qwen-1.5B
+Dataset:       math-train
+Data file:     ./initial_cot/DeepSeek-R1-Distill-Qwen-1.5B_math-train_rollout_temperature0.6.jsonl
+Segments:      ./processed_cot/segmented_CoT_DeepSeek-R1-Distill-Qwen-1.5B_math-train_rollout_temperature0.6_merged.json
+Save path:     ./labeled_cot
+Max tokens:    150000
+Poll interval: 60s
+id2ans: 1000, id2reasoning: 1000
+Wrote 1000 batch requests to labeled_cot/_batch_openai/requests_DeepSeek-R1-Distill-Qwen-1.5B_math-train_rollout_temperature0.6.jsonl
+Uploaded input file: file-237ABKaMu8kjwFyDjKtJTL
+Submitted batch job: batch_69e55b1ac5d4819086acaa1c5a6a7a93
+[18:45:47] batch_69e55b1ac5d4819086acaa1c5a6a7a93 status=validating completed=0/0 failed=0
+[18:46:47] batch_69e55b1ac5d4819086acaa1c5a6a7a93 status=validating completed=0/0 failed=0
+[18:47:47] batch_69e55b1ac5d4819086acaa1c5a6a7a93 status=in_progress completed=0/1000 failed=500
+[18:48:47] batch_69e55b1ac5d4819086acaa1c5a6a7a93 status=in_progress completed=0/1000 failed=993
+[18:49:47] batch_69e55b1ac5d4819086acaa1c5a6a7a93 status=finalizing completed=0/1000 failed=1000
+[18:50:47] batch_69e55b1ac5d4819086acaa1c5a6a7a93 status=completed completed=0/1000 failed=1000
+1000 per-request errors saved to labeled_cot/_batch_openai/errors_DeepSeek-R1-Distill-Qwen-1.5B_math-train_rollout_temperature0.6.jsonl; first 5: [('0', {'id': 'batch_req_69e55c0213748190a409726c5b31c2e9', 'custom_id': '0', 'response': {'status_code': 400, 'request_id': 'f4ef2396-a83c-4635-b10a-0f66912641c6', 'body': {'error': {'message': 'max_tokens is too large: 150000. This model supports at most 128000 completion tokens, whereas you provided 150000.', 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'invalid_value'}}}, 'error': None}), ('1', {'id': 'batch_req_69e55c0298088190ab24f1830a46a9c2', 'custom_id': '1', 'response': {'status_code': 400, 'request_id': '498ef2ca-dc06-4095-bd58-88e13a5e1555', 'body': {'error': {'message': 'max_tokens is too large: 150000. This model supports at most 128000 completion tokens, whereas you provided 150000.', 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'invalid_value'}}}, 'error': None}), ('10', {'id': 'batch_req_69e55c0216648190a07efd5b1f97f2cb', 'custom_id': '10', 'response': {'status_code': 400, 'request_id': '78c6feea-ccd1-4f80-a96c-dc056046353f', 'body': {'error': {'message': 'max_tokens is too large: 150000. This model supports at most 128000 completion tokens, whereas you provided 150000.', 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'invalid_value'}}}, 'error': None}), ('100', {'id': 'batch_req_69e55c020dc481908eb24f3455aaf209', 'custom_id': '100', 'response': {'status_code': 400, 'request_id': '4de81142-13e9-44a5-85d5-e385f34fa9dc', 'body': {'error': {'message': 'max_tokens is too large: 150000. This model supports at most 128000 completion tokens, whereas you provided 150000.', 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'invalid_value'}}}, 'error': None}), ('101', {'id': 'batch_req_69e55c021fec8190a4dc004f96c1b35e', 'custom_id': '101', 'response': {'status_code': 400, 'request_id': 'bf444691-73f9-4231-ba34-d96cbbfaab38', 'body': {'error': {'message': 'max_tokens is too large: 150000. This model supports at most 128000 completion tokens, whereas you provided 150000.', 'type': 'invalid_request_error', 'param': 'max_tokens', 'code': 'invalid_value'}}}, 'error': None})]

@@ -1,6 +1,6 @@
 model_name=DeepSeek-R1-Distill-Qwen-1.5B
 model_path=$HOME/models/$model_name
-dataset=aime_25
+dataset=math-train
 temperature=0.6
 input_file=./labeled_cot/labeled_intermediate_answers_${model_name}_${dataset}_rollout_temperature${temperature}.jsonl
 for file_id in {0..19}
@@ -11,5 +11,5 @@ python -u src/get_representation.py \
     --save_path ./model_embeds/${model_name}_${dataset} \
     --bs 1 \
     --file_id $file_id \
-    --file_size 1 # file size measured by number of questions, should not be too large because that would affect training data shuffling
+    --file_size 20 # file size measured by number of questions, should not be too large because that would affect training data shuffling
 done

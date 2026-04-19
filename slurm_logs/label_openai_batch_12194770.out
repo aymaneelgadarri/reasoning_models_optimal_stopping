@@ -1,0 +1,56 @@
+Job ID:        12194770
+Node:          node2705
+Working dir:   /home/aymelgad/reasoning_models_optimal_stopping
+Model:         gpt-4o-mini
+Source model:  DeepSeek-R1-Distill-Qwen-1.5B
+Dataset:       math-train
+Data file:     ./initial_cot/DeepSeek-R1-Distill-Qwen-1.5B_math-train_rollout_temperature0.6.jsonl
+Segments:      ./processed_cot/segmented_CoT_DeepSeek-R1-Distill-Qwen-1.5B_math-train_rollout_temperature0.6_merged.json
+Save path:     ./labeled_cot
+Max tokens:    16384
+Poll interval: 60s
+id2ans: 1000, id2reasoning: 1000
+Wrote 1000 batch requests to labeled_cot/_batch_openai/requests_DeepSeek-R1-Distill-Qwen-1.5B_math-train_rollout_temperature0.6.jsonl
+Uploaded input file: file-14aNgZMq69pnvFP2Qq9ryG
+Submitted batch job: batch_69e45cc26fac819086e761b12771d30b
+[00:40:34] batch_69e45cc26fac819086e761b12771d30b status=validating completed=0/0 failed=0
+[00:41:34] batch_69e45cc26fac819086e761b12771d30b status=in_progress completed=93/1000 failed=0
+[00:42:34] batch_69e45cc26fac819086e761b12771d30b status=in_progress completed=562/1000 failed=0
+[00:43:35] batch_69e45cc26fac819086e761b12771d30b status=in_progress completed=904/1000 failed=0
+[00:44:35] batch_69e45cc26fac819086e761b12771d30b status=in_progress completed=970/1000 failed=0
+[00:45:35] batch_69e45cc26fac819086e761b12771d30b status=completed completed=1000/1000 failed=0
+Downloaded results to labeled_cot/_batch_openai/results_DeepSeek-R1-Distill-Qwen-1.5B_math-train_rollout_temperature0.6.jsonl
+Error processing output for 118
+Error processing output for 12
+Error processing output for 139
+Error processing output for 145
+Error processing output for 190
+Error processing output for 199
+Error processing output for 204
+Error processing output for 207
+Error processing output for 245
+Error processing output for 257
+Error processing output for 286
+Error processing output for 338
+Error processing output for 378
+Error processing output for 386
+Error processing output for 4
+Error processing output for 412
+Error processing output for 438
+Error processing output for 450
+Error processing output for 467
+Error processing output for 483
+Error processing output for 542
+Error processing output for 605
+Error processing output for 619
+Error processing output for 620
+Error processing output for 623
+Error processing output for 685
+Error processing output for 790
+Error processing output for 842
+Error processing output for 924
+Error processing output for 963
+Error processing output for 974
+Parsed 969 items, skipped 31
+Saved 969 labeled items to ./labeled_cot/labeled_intermediate_answers_DeepSeek-R1-Distill-Qwen-1.5B_math-train_rollout_temperature0.6.jsonl
+All tasks complete

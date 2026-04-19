@@ -1,0 +1,21 @@
+Job ID:        12194632
+Node:          node2705
+Working dir:   /home/aymelgad/reasoning_models_optimal_stopping
+Model:         gpt-4o-mini
+Source model:  DeepSeek-R1-Distill-Qwen-1.5B
+Dataset:       aime_25
+Data file:     ./initial_cot/DeepSeek-R1-Distill-Qwen-1.5B_aime_25_rollout_temperature0.6.jsonl
+Segments:      ./processed_cot/segmented_CoT_DeepSeek-R1-Distill-Qwen-1.5B_aime_25_rollout_temperature0.6_merged.json
+Save path:     ./labeled_cot
+Max tokens:    16384
+Poll interval: 60s
+id2ans: 30, id2reasoning: 30
+Wrote 30 batch requests to labeled_cot/_batch_openai/requests_DeepSeek-R1-Distill-Qwen-1.5B_aime_25_rollout_temperature0.6.jsonl
+Uploaded input file: file-GU4948FMd63FLqWGqHLU6s
+Submitted batch job: batch_69e45b5ef3608190b85809f9ff51ad4c
+[00:34:39] batch_69e45b5ef3608190b85809f9ff51ad4c status=validating completed=0/0 failed=0
+[00:35:39] batch_69e45b5ef3608190b85809f9ff51ad4c status=validating completed=0/0 failed=0
+[00:36:39] batch_69e45b5ef3608190b85809f9ff51ad4c status=cancelling completed=0/30 failed=0
+[00:37:39] batch_69e45b5ef3608190b85809f9ff51ad4c status=cancelling completed=0/30 failed=0
+[00:38:39] batch_69e45b5ef3608190b85809f9ff51ad4c status=cancelling completed=0/30 failed=0
+[00:39:40] batch_69e45b5ef3608190b85809f9ff51ad4c status=cancelling completed=0/30 failed=0

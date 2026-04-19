@@ -1,7 +1,7 @@
 #!/bin/bash
 
 MODEL=DeepSeek-R1-Distill-Qwen-1.5B
-DATA=aime_25
+DATA=math-train
 TRAIN_DATA_PATH=./model_embeds/${MODEL}_${DATA}
 # Grid search over hyperparameters
 max_runs=10

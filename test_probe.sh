@@ -1,6 +1,6 @@
 #!/bin/bash
 model=DeepSeek-R1-Distill-Qwen-1.5B
-data=aime_25
+data=math-train
 
 MODEL_BASE_PATH=./grid_search/${model}_${data}
 GRID_SEARCH_PATH=$MODEL_BASE_PATH/grid_search_result.jsonl

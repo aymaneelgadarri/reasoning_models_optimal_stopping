@@ -1,0 +1,11 @@
+Job ID:        12202801
+Node:          node3112
+Working dir:   /home/aymelgad/reasoning_models_optimal_stopping
+Model:         gpt-5.4-mini
+Source model:  DeepSeek-R1-Distill-Qwen-1.5B
+Dataset:       math-train
+Data file:     ./initial_cot/DeepSeek-R1-Distill-Qwen-1.5B_math-train_rollout_temperature0.6.jsonl
+Segments:      ./processed_cot/segmented_CoT_DeepSeek-R1-Distill-Qwen-1.5B_math-train_rollout_temperature0.6_merged.json
+Save path:     ./labeled_cot
+Max tokens:    150000
+Poll interval: 60s

@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/orcd/home/002/aymelgad/reasoning_models_optimal_stopping/src/label_answer_correctness_openai_batch.py", line 285, in <module>
+    main()
+  File "/orcd/home/002/aymelgad/reasoning_models_optimal_stopping/src/label_answer_correctness_openai_batch.py", line 240, in main
+    raise RuntimeError("Batch completed but no output_file_id was returned.")
+RuntimeError: Batch completed but no output_file_id was returned.

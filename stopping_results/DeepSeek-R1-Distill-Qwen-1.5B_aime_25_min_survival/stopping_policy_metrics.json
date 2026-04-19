@@ -1,0 +1,32 @@
+{
+  "args": {
+    "probe_ckpt": "./grid_search_stopping/DeepSeek-R1-Distill-Qwen-1.5B_aime_25/checkpoints/best_stopping_min_survival-hs0-lr0.0001-wd0.001-s42.pt",
+    "model_name": "DeepSeek-R1-Distill-Qwen-1.5B",
+    "formulation": "min_survival",
+    "probe_hidden_size": null,
+    "output_dir": "./stopping_results/DeepSeek-R1-Distill-Qwen-1.5B_aime_25_min_survival",
+    "max_examples": -1,
+    "max_generation_tokens": 10000,
+    "seed": 42,
+    "no_fold_tail": false,
+    "scores_path": null,
+    "embed_dir": "./model_embeds/DeepSeek-R1-Distill-Qwen-1.5B_aime_25",
+    "labeled_data_path": "./labeled_cot/labeled_intermediate_answers_DeepSeek-R1-Distill-Qwen-1.5B_aime_25_rollout_temperature0.6.jsonl",
+    "model_path": "/home/aymelgad/models/DeepSeek-R1-Distill-Qwen-1.5B",
+    "batch_size": 8,
+    "no_quantization": false
+  },
+  "formulation": "min_survival",
+  "fold_tail_into_last": true,
+  "n_examples_scored": 18,
+  "stopping_policy": {
+    "n_examples": 18,
+    "n_skipped": 0,
+    "accuracy": 0.2777777777777778,
+    "avg_selected_tokens": 4020.277777777778,
+    "avg_full_trace_tokens": 7198.0,
+    "avg_token_ratio": 0.6143482560124446,
+    "avg_token_reduction": 0.3856517439875554,
+    "avg_selected_chunk": 1.6666666666666667
+  }
+}

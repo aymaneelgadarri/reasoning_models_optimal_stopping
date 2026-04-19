@@ -3,7 +3,7 @@
 Reads the ``early_exit_metrics.json`` file written by ``eval_early_exit.py``
 and produces:
 
-* ``accuracy_vs_tokens.png`` - final-answer accuracy vs. average assistant
+* ``accuracy_vs_tokens.png`` - final-answer accuracy vs. average tokens
   tokens used, with one curve for the confidence-based early exit (sweep over
   thresholds) and one for the static early exit (sweep over ``k``).  The
   no-early-exit baseline is overlaid as a single point.

@@ -1,0 +1,29 @@
+Job ID:        12194448
+Node:          node2704
+Working dir:   /home/aymelgad/reasoning_models_optimal_stopping
+Model:         gpt-4o-mini
+Source model:  DeepSeek-R1-Distill-Qwen-1.5B
+Dataset:       aime_25
+Data file:     ./initial_cot/DeepSeek-R1-Distill-Qwen-1.5B_aime_25_rollout_temperature0.6.jsonl
+Segments:      ./processed_cot/segmented_CoT_DeepSeek-R1-Distill-Qwen-1.5B_aime_25_rollout_temperature0.6_merged.json
+Save path:     ./labeled_cot
+Max tokens:    16384
+Poll interval: 60s
+id2ans: 30, id2reasoning: 30
+Wrote 30 batch requests to labeled_cot/_batch_openai/requests_DeepSeek-R1-Distill-Qwen-1.5B_aime_25_rollout_temperature0.6.jsonl
+Uploaded input file: file-17tTerpg8kCoJxXgLmDKPn
+Submitted batch job: batch_69e45a7545a48190b8353e9db7fcdc9b
+[00:30:45] batch_69e45a7545a48190b8353e9db7fcdc9b status=validating completed=0/0 failed=0
+[00:31:46] batch_69e45a7545a48190b8353e9db7fcdc9b status=validating completed=0/0 failed=0
+[00:32:46] batch_69e45a7545a48190b8353e9db7fcdc9b status=in_progress completed=4/30 failed=0
+[00:33:46] batch_69e45a7545a48190b8353e9db7fcdc9b status=in_progress completed=11/30 failed=0
+[00:34:46] batch_69e45a7545a48190b8353e9db7fcdc9b status=in_progress completed=20/30 failed=0
+[00:35:46] batch_69e45a7545a48190b8353e9db7fcdc9b status=completed completed=30/30 failed=0
+Downloaded results to labeled_cot/_batch_openai/results_DeepSeek-R1-Distill-Qwen-1.5B_aime_25_rollout_temperature0.6.jsonl
+Error processing output for 14
+Error processing output for 19
+Error processing output for 27
+Error processing output for 4
+Parsed 26 items, skipped 4
+Saved 26 labeled items to ./labeled_cot/labeled_intermediate_answers_DeepSeek-R1-Distill-Qwen-1.5B_aime_25_rollout_temperature0.6.jsonl
+All tasks complete
