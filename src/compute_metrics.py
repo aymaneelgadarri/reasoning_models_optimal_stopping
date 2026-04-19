@@ -3,7 +3,6 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_sc
 from sklearn.metrics import roc_auc_score
 import numpy as np
 from sklearn.metrics import brier_score_loss
-from constant import BEST_SETTING
 import os
 from tqdm import tqdm
 
@@ -75,7 +74,7 @@ def compute_other_metrics(val_labels, val_probs):
     }
 
 def process_file(file_path):
-    res_profile = torch.load(file_path)
+    res_profile = torch.load(file_path, weights_only=False)
 
     test_preds = res_profile['test']['test_preds'] # len:3380
     test_labels = res_profile['test']['test_labels'] # len: 3380
@@ -90,6 +89,7 @@ def process_file(file_path):
         **other_metrics
     }
 if __name__ == "__main__":
+    from constant import BEST_SETTING
     TEST_DATASET = [
         "math_500",
         "aime_25",

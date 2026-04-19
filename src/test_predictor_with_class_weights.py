@@ -4,7 +4,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
-from .dataloader import *
+from dataloader import *
 import numpy as np
 import argparse
 from sklearn.metrics import brier_score_loss
@@ -191,7 +191,7 @@ def main():
         base_ckpt_name = ckpt.split('/')[-1]
         # identify hidden size from the model file name by matching the pattern "-hs{hidden_size}-"
         hidden_size = int(base_ckpt_name.split("-hs")[-1].split("-")[0])
-        ckpt_weights = torch.load(ckpt)
+        ckpt_weights = torch.load(ckpt, weights_only=False)
         
         if "pos_weight_from_train" in ckpt_weights:
             if pos_weight is not None:

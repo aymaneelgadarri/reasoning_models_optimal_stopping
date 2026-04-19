@@ -1,6 +1,11 @@
 #!/bin/bash
 
+MODEL=DeepSeek-R1-Distill-Qwen-1.5B
+DATA=aime_25
+TRAIN_DATA_PATH=./model_embeds/${MODEL}_${DATA}
 # Grid search over hyperparameters
+max_runs=10
+run_id=0
 for lr in 1e-3 1e-4 1e-5; do
     for hidden_size in 0 16 32; do
         for wd in 0.001 0.01 0.1; do
@@ -18,6 +23,10 @@ for lr in 1e-3 1e-4 1e-5; do
                     --save_model_path ./grid_search/${MODEL}_${DATA}/checkpoints \
                     --store_path ./grid_search/${MODEL}_${DATA}/store \
                     --model_name $MODEL
+                run_id=$((run_id + 1))
+                if [ $run_id -ge $max_runs ]; then
+                    break
+                fi
             done
         done
     done

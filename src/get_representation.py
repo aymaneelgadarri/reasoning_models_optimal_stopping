@@ -21,6 +21,15 @@ random.seed(0)
 
 def load_model(args, model_name, bnb_config):
     tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=True)
+    # Robust batched embedding extraction: with ``padding_side='left'`` the
+    # last position of every row corresponds to a real content token, and we
+    # also fall back to ``eos_token`` if no pad token is defined (common for
+    # decoder-only LMs).  This avoids the ``[:, -1, :]`` pitfall where
+    # right-padding silently returns the hidden state of a pad token for the
+    # shorter sequences in a batch.
+    tokenizer.padding_side = "left"
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
     n_gpus = torch.cuda.device_count()
     max_memory = "10000MB"
     model = AutoModelForCausalLM.from_pretrained(
@@ -88,22 +97,29 @@ def get_batch_embeddings(args, model, tokenizer, dataset, batch_size=8):
 def run_LLM(args, batch_prompts, model, tokenizer):
     encoded_inputs = tokenizer(batch_prompts, return_tensors='pt', padding=True)
     input_ids = encoded_inputs.input_ids.to(device)
+    attention_mask = encoded_inputs.attention_mask.to(device)
     # Forward pass through the model to get hidden states
     with torch.no_grad():
-        # Generate output with hidden states
-        outputs = model(input_ids, output_hidden_states=True)
+        # Generate output with hidden states (pass attention_mask so attention
+        # ignores padding tokens regardless of padding side).
+        outputs = model(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            output_hidden_states=True,
+        )
         # Access the last hidden state
-        last_hidden_state = outputs.hidden_states[-1].detach().cpu()
-        # Access the logits
-        # logits = outputs.logits.detach().cpu()
-        del outputs  # Free GPU memory
-        del input_ids
+        last_hidden_state = outputs.hidden_states[-1]
+        # Robust gather: pick the hidden state of the *last real* (non-pad)
+        # token in each row.  ``last_nonpad_idx = attention_mask.sum(dim=1) - 1``
+        # is correct for both left- and right-padded batches and avoids the
+        # ``[:, -1, :]`` bug where short sequences would otherwise return a
+        # pad-token embedding.
+        seq_lens = attention_mask.sum(dim=1).to(torch.long)
+        last_nonpad_idx = (seq_lens - 1).clamp(min=0)
+        batch_idx = torch.arange(last_hidden_state.size(0), device=last_hidden_state.device)
+        batched_last_token_embedding = last_hidden_state[batch_idx, last_nonpad_idx, :].detach().cpu()
+        del outputs, last_hidden_state, input_ids, attention_mask
         torch.cuda.empty_cache()
-    # Extract the embedding for the last token
-    batched_last_token_embedding = last_hidden_state[:, -1, :]  # Batch, last token, 4096. Shape: (batch_size, sequence_length, hidden_size). For sentence embedding.
-    del last_hidden_state
-    # del logits
-    torch.cuda.empty_cache()
     return batched_last_token_embedding
 
 

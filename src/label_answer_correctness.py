@@ -42,10 +42,10 @@ def run_LLM(args, client, reasoning_trace, gt_answer):
     prompt = INSTRUCT_PROMPT + f"Input chunks: {reasoning_trace}" + f"\n\nGround-truth answer: {gt_answer}"
     # send request
     response = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-3.1-flash-lite-preview",
         contents=[prompt],
         config=types.GenerateContentConfig(
-            max_output_tokens=10000, #1000 is not enough for very long reasoning traces, maybe 10000
+            max_output_tokens=30000, #1000 is not enough for very long reasoning traces, maybe 10000
             temperature=args.temperature
         )
     )

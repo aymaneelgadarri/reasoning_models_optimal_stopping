@@ -26,6 +26,7 @@ Official code for ["Reasoning Models Know When They're Right: Probing Hidden Sta
   - [Data Preparation](#data-preparation) 
   - [Train Probes](#train-probs)
   - [Test Probes](#test-probes)
+- [Section 5: Early-Exit Verifier Evaluation](#section-5-early-exit-verifier-evaluation)
 
 
 
@@ -202,6 +203,80 @@ python -u ./test_predictor_with_class_weights.py \
     --model_name $model
 ```
 
+
+## 🛑 Section 5: Early-Exit Verifier Evaluation
+
+Reproduces the **offline** version of the Section 5 confidence-based
+early-exit experiment.  Given pre-generated, chunked, and labelled reasoning
+traces, the script scores every intermediate answer with the trained probe,
+picks the first chunk whose probability exceeds a threshold, and reports
+final-answer accuracy together with the assistant-side token cost (vs. the
+no-early-exit and static-`k` baselines).
+
+This implementation does **not** interrupt live generation; it scores all
+chunks in order and selects the first threshold hit, which is equivalent to
+what live early-exit would produce on the same traces.
+
+### Inputs
+
+- `--labeled_data_path`: a `labeled_intermediate_answers_*.jsonl` produced by
+  [step 3](#3-label-intermediate-answers).
+- `--probe_ckpt`: a probe `.pt` from [Train Probes](#train-probs) (either the
+  raw `state_dict` or the wrapped `{"model": ..., "pos_weight_from_train": ...}`
+  dict are accepted; the probe's hidden size is auto-inferred from the file
+  name when possible, or can be passed via `--probe_hidden_size`).
+- `--model_path`: the same base LM that was used to extract the probe's
+  training-time hidden states.
+
+### Run
+
+```bash
+PROBE_CKPT=/path/to/best_probe.pt \
+MODEL_NAME=DeepSeek-R1-Distill-Llama-8B \
+DATASET=math_500 \
+bash eval_early_exit.sh
+```
+
+Or invoke the Python entry-point directly:
+
+```bash
+python -u src/eval_early_exit.py \
+  --labeled_data_path ./labeled_cot/labeled_intermediate_answers_DeepSeek-R1-Distill-Llama-8B_math_500_rollout_temperature0.6.jsonl \
+  --model_path /path/to/DeepSeek-R1-Distill-Llama-8B \
+  --probe_ckpt /path/to/best_probe.pt \
+  --model_name DeepSeek-R1-Distill-Llama-8B \
+  --output_dir ./early_exit_results/llama8b_math \
+  --batch_size 8 \
+  --max_examples -1 \
+  --max_generation_tokens 10000 \
+  --thresholds 0.50,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,0.99 \
+  --static_k_values 1,2,3,4,5,6,7,8,9,10 \
+  --seed 42
+```
+
+### Outputs (under `--output_dir`)
+
+- `per_example_scores.json` – per-chunk probe probabilities, ground-truth
+  correctness labels, and cumulative assistant-side token counts. Re-running
+  with `--scores_only` recomputes the metrics from this file without
+  re-invoking the base LM.
+- `early_exit_metrics.json` – aggregate accuracy, average tokens used, token
+  ratio and reduction for:
+  - `no_early_exit` (always pick the last chunk),
+  - `confidence_early_exit` (sweep over `--thresholds`),
+  - `static_early_exit` (sweep over `--static_k_values`).
+- `accuracy_vs_tokens.png` and `accuracy_vs_threshold.png` – plotted
+  trade-off curves (produced by `src/plot_early_exit.py`).
+
+### Notes on consistency with training-time representations
+
+`src/eval_early_exit.py` reuses the cumulative-prefix prompt format from
+`src/get_representation.py` via `src/early_exit_utils.py`, so the probe sees
+exactly the same kind of hidden states it was trained on.  Both code paths
+now also use **left-padding** with `pad_token := eos_token` and a robust
+last-non-pad-token gather (`attention_mask.sum(dim=1) - 1`) instead of
+`last_hidden_state[:, -1, :]`, which previously could return the embedding
+of a pad token for shorter sequences in a right-padded batch.
 
 ## 📝 Citation
 

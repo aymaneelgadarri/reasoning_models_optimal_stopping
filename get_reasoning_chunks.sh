@@ -17,7 +17,7 @@ if [ "$DELETE_CHUNKS" = true ]; then
 fi
 
 model=DeepSeek-R1-Distill-Qwen-1.5B
-data=math-train
+data=aime_25
 DATAFILE_PATH="./initial_cot/${model}_${data}_rollout_temperature0.6.jsonl"
 # Print execution information
 echo "Starting processing with the following configuration:"

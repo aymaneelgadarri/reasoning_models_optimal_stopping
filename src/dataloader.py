@@ -42,7 +42,7 @@ class OptimizedBinaryClassificationDataset(IterableDataset):
         for fp in files:
             # print(fp)
             try:
-                data = torch.load(fp)
+                data = torch.load(fp, weights_only=False)
                 # Process one sample at a time
                 # inputs = torch.cat(data['all_last_token_embedding'], dim=0)
                 inputs = data['all_last_token_embedding']
@@ -76,7 +76,7 @@ def get_train_val(train_data_dir):
 def get_the_weighted(train_files):
     correctness_list = []
     for fp in train_files:
-        data = torch.load(fp)
+        data = torch.load(fp, weights_only=False)
         labels = torch.tensor(
             [b['correctness'] for batch in data['all_batch_info'] for b in batch], dtype=torch.float
         )

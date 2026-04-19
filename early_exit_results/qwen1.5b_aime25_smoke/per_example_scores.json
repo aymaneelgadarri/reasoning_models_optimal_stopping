@@ -1,0 +1,1 @@
+[{"id": "0", "question": "Find the sum of all integer bases $b>9$ for which $17_b$ is a divisor of $97_b.$", "answer": "70", "num_chunks": 3, "probe_probs": [0.9054422378540039, 0.5220690965652466, 0.7880250811576843], "correctness": [1, 1, 1], "results": ["70", "70", "70"], "cum_tokens": [879, 1052, 1277]}]
