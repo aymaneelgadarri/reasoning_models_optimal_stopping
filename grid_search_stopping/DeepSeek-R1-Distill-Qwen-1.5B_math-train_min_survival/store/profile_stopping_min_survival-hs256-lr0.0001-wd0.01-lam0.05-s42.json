@@ -1,0 +1,73 @@
+{
+  "args": {
+    "labeled_data_path": "./labeled_cot/labeled_intermediate_answers_DeepSeek-R1-Distill-Qwen-1.5B_math-train_rollout_temperature0.6.jsonl",
+    "embed_dir": "./model_embeds/DeepSeek-R1-Distill-Qwen-1.5B_math-train",
+    "model_name": "DeepSeek-R1-Distill-Qwen-1.5B",
+    "save_model_path": "./grid_search_stopping/DeepSeek-R1-Distill-Qwen-1.5B_math-train_min_survival/checkpoints",
+    "store_path": "./grid_search_stopping/DeepSeek-R1-Distill-Qwen-1.5B_math-train_min_survival/store",
+    "formulation": "min_survival",
+    "epochs": 200,
+    "lr": 0.0001,
+    "wd": 0.01,
+    "hidden_size": 256,
+    "lambda_penalty": 0.05,
+    "seed": 42,
+    "val_frac": 0.2,
+    "max_examples": null,
+    "patience": 10,
+    "no_fold_tail": false
+  },
+  "formulation": "min_survival",
+  "train_loss": [
+    -0.659742279087287,
+    -0.6667854588536527,
+    -0.6706968243457536,
+    -0.6721937840871296,
+    -0.676223054602737,
+    -0.6744679054638514,
+    -0.6755950983393167,
+    -0.6776437596750435,
+    -0.6755523511479617,
+    -0.6774805362228868,
+    -0.6778269531118261
+  ],
+  "val_expected_reward": [
+    0.6289909138616795,
+    0.6273672664220244,
+    0.6256118726017208,
+    0.6233602990832283,
+    0.6270396330318027,
+    0.6204171750103536,
+    0.6229596164451463,
+    0.6279943266286171,
+    0.6169887012109982,
+    0.6212137623795332,
+    0.6198350893831892
+  ],
+  "val_argmax_accuracy": [
+    0.6309523809523809,
+    0.6309523809523809,
+    0.6309523809523809,
+    0.6309523809523809,
+    0.6309523809523809,
+    0.625,
+    0.625,
+    0.6309523809523809,
+    0.6130952380952381,
+    0.625,
+    0.625
+  ],
+  "val_no_exit_accuracy": [
+    0.8333333333333334,
+    0.8333333333333334,
+    0.8333333333333334,
+    0.8333333333333334,
+    0.8333333333333334,
+    0.8333333333333334,
+    0.8333333333333334,
+    0.8333333333333334,
+    0.8333333333333334,
+    0.8333333333333334,
+    0.8333333333333334
+  ]
+}

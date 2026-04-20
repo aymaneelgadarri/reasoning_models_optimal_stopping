@@ -51,7 +51,11 @@ def plot_accuracy_vs_tokens(metrics: Dict, save_path: str, title_suffix: str) ->
     cx, cy = _xy(conf_rows, "avg_selected_tokens", "accuracy")
     sx, sy = _xy(static_rows, "avg_selected_tokens", "accuracy")
 
-    ax.plot(cx, cy, marker="o", label="Confidence early exit (probe)")
+    ax.plot(
+        cx, cy,
+        marker="o", linestyle=":", color="tab:gray", alpha=0.8,
+        label="Classifier probe",
+    )
     for row in conf_rows:
         ax.annotate(
             f"\u03c4={row['threshold']:.2f}",
@@ -59,7 +63,11 @@ def plot_accuracy_vs_tokens(metrics: Dict, save_path: str, title_suffix: str) ->
             fontsize=7, alpha=0.7, xytext=(3, 3), textcoords="offset points",
         )
 
-    ax.plot(sx, sy, marker="s", linestyle="--", label="Static early exit (k chunks)")
+    ax.plot(
+        sx, sy,
+        marker="s", linestyle="--", color="tab:orange", alpha=0.8,
+        label="Static early exit (k chunks)",
+    )
     for row in static_rows:
         ax.annotate(
             f"k={row['static_k']}",
@@ -70,12 +78,13 @@ def plot_accuracy_vs_tokens(metrics: Dict, save_path: str, title_suffix: str) ->
     no_exit = metrics["no_early_exit"]
     ax.scatter(
         [no_exit["avg_selected_tokens"]], [no_exit["accuracy"]],
-        marker="*", s=180, color="red", zorder=5, label="No early exit",
+        marker="*", s=180, color="red", zorder=5,
+        label=f"No early exit (acc={no_exit['accuracy']:.3f})",
     )
 
     ax.set_xlabel("Average tokens")
     ax.set_ylabel("Final-answer accuracy")
-    title = "Early-exit accuracy vs. token cost"
+    title = "Early-exit accuracy vs. number of tokens"
     if title_suffix:
         title = f"{title} ({title_suffix})"
     ax.set_title(title)

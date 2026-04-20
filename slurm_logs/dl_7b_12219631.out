@@ -1,0 +1,14 @@
+Downloading DeepSeek-R1-Distill-Qwen-7B → /home/aymelgad/models/DeepSeek-R1-Distill-Qwen-7B
+/orcd/home/002/aymelgad/models/DeepSeek-R1-Distill-Qwen-7B
+Done. Contents:
+total 15G
+-rw-rw-r-- 1 aymelgad aymelgad 1.1K Apr 20 01:04 LICENSE
+-rw-rw-r-- 1 aymelgad aymelgad  16K Apr 20 01:04 README.md
+-rw-rw-r-- 1 aymelgad aymelgad  680 Apr 20 01:04 config.json
+drwxrwxr-x 2 aymelgad aymelgad 4.0K Apr 20 01:04 figures
+-rw-rw-r-- 1 aymelgad aymelgad  181 Apr 20 01:04 generation_config.json
+-rw-rw-r-- 1 aymelgad aymelgad 8.1G Apr 20 01:04 model-00001-of-000002.safetensors
+-rw-rw-r-- 1 aymelgad aymelgad 6.2G Apr 20 01:03 model-00002-of-000002.safetensors
+-rw-rw-r-- 1 aymelgad aymelgad  28K Apr 20 01:04 model.safetensors.index.json
+-rw-rw-r-- 1 aymelgad aymelgad 6.8M Apr 20 01:04 tokenizer.json
+-rw-rw-r-- 1 aymelgad aymelgad 3.0K Apr 20 01:04 tokenizer_config.json

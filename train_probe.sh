@@ -1,13 +1,13 @@
 #!/bin/bash
 
-MODEL=DeepSeek-R1-Distill-Qwen-1.5B
-DATA=math-train
+MODEL=${MODEL:-DeepSeek-R1-Distill-Qwen-1.5B}
+DATA=${DATA:-math-train}
 TRAIN_DATA_PATH=./model_embeds/${MODEL}_${DATA}
 # Grid search over hyperparameters
-max_runs=10
+max_runs=10000
 run_id=0
 for lr in 1e-3 1e-4 1e-5; do
-    for hidden_size in 0 16 32; do
+    for hidden_size in 0 16 128 256; do
         for wd in 0.001 0.01 0.1; do
             for alpha in 0.3 0.5 0.7 0.9 1.0 1.5 2.0 3.0; do
                 echo "Running with --lr $lr --hidden_size $hidden_size --wd $wd --alpha_imbalance_penalty $alpha"

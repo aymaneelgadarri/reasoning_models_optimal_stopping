@@ -53,6 +53,16 @@ from eval_stopping_policy import evaluate as eval_metrics
 # Args
 # ---------------------------------------------------------------------------
 
+_FORMULATION_DISPLAY = {
+    "min_survival": "Optimal-Stopping-min-survival",
+    "product": "Optimal-Stopping-product",
+}
+
+
+def _pretty_formulation(name: str) -> str:
+    return _FORMULATION_DISPLAY.get(name, name)
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -313,9 +323,10 @@ def plot_accuracy_vs_tokens(
     for i, g in enumerate(grids):
         color = _DEFAULT_COLORS[i % len(_DEFAULT_COLORS)]
         marker = _DEFAULT_MARKERS[i % len(_DEFAULT_MARKERS)]
+        pretty_formulation = _pretty_formulation(g["formulation"])
         _plot_curve(
             ax, g["points"], x_key, y_key,
-            label=f"{g['formulation']} ({metric})",
+            label=f"{pretty_formulation} ({metric})",
             color=color, marker=marker,
         )
 
@@ -326,8 +337,8 @@ def plot_accuracy_vs_tokens(
             ax.plot(
                 [r["avg_selected_tokens"] for r in conf_sorted],
                 [r["accuracy"] for r in conf_sorted],
-                marker="o", linestyle=":", color="tab:gray", alpha=0.7,
-                label="Confidence early-exit (binary probe)",
+                marker="o", linestyle=":", color="tab:orange", alpha=0.8,
+                label="Classifier probe",
             )
         static = early_exit_metrics.get("static_early_exit", [])
         if static:
@@ -335,8 +346,8 @@ def plot_accuracy_vs_tokens(
             ax.plot(
                 [r["avg_selected_tokens"] for r in static_sorted],
                 [r["accuracy"] for r in static_sorted],
-                marker="s", linestyle="--", color="tab:orange", alpha=0.7,
-                label="Static early-exit (k chunks)",
+                marker="s", linestyle="--", color="tab:gray", alpha=0.8,
+                label="Static early exit (k chunks)",
             )
 
     # Prefer the no-exit point we computed locally; fall back to the one
@@ -348,13 +359,13 @@ def plot_accuracy_vs_tokens(
         ax.scatter(
             [no_exit["avg_selected_tokens"]], [no_exit["accuracy"]],
             marker="*", s=200, color="red", zorder=5,
-            label=f"Original model (no early exit) acc={no_exit['accuracy']:.3f}",
+            label=f"No early exit (acc={no_exit['accuracy']:.3f})",
         )
 
     ax.set_xlabel(x_label)
     ax.set_ylabel("Final-answer accuracy")
     title = (
-        f"Stopping-policy accuracy vs. token cost  ({metric} per-example)"
+        f"Stopping-policy accuracy vs. number of tokens  ({metric})"
     )
     if title_suffix:
         title = f"{title}\n{title_suffix}"

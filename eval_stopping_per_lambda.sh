@@ -46,12 +46,45 @@ SKIP_EVAL=${SKIP_EVAL:-0}
 MODEL_PATH=${MODEL_PATH:-$HOME/models/${MODEL}}
 EMBED_DIR=${EMBED_DIR:-./model_embeds/${MODEL}_${DATASET}}
 LABELED_DATA_PATH=${LABELED_DATA_PATH:-./labeled_cot/labeled_intermediate_answers_${MODEL}_${DATASET}_rollout_temperature${TEMPERATURE}.jsonl}
-OUTPUT_DIR=${OUTPUT_DIR:-./stopping_results/${MODEL}_${DATASET}_per_lambda}
-EARLY_EXIT_METRICS=${EARLY_EXIT_METRICS:-./early_exit_results/${MODEL}_${DATASET}/early_exit_metrics.json}
-
-mkdir -p "${OUTPUT_DIR}"
 
 IFS=',' read -ra TRAIN_DATASETS <<<"${TRAIN_DATASET}"
+
+# Build a dataset tag that reflects both the train source(s) and the test
+# set, mirroring the ``train-X_test-Y`` convention used by eval_early_exit.sh.
+# When train == test and there is only one train source, keep the legacy
+# short name so previously-generated folders stay reachable.
+PRIMARY_TRAIN="${TRAIN_DATASETS[0]}"
+if [[ ${#TRAIN_DATASETS[@]} -eq 1 && "${PRIMARY_TRAIN}" == "${DATASET}" ]]; then
+    DS_TAG="${DATASET}"
+else
+    joined_train=$(IFS='-'; echo "${TRAIN_DATASETS[*]}")
+    DS_TAG="train-${joined_train}_test-${DATASET}"
+fi
+
+OUTPUT_DIR=${OUTPUT_DIR:-./stopping_results/${MODEL}_${DS_TAG}_per_lambda}
+
+# Match the binary-probe baseline to the *primary* train source so the
+# overlay curve is the probe trained+tested on the same (train, test) pair
+# as the stopping policy.  Fall back to the legacy test-only folder if the
+# train/test-tagged one is missing so pre-refactor runs still overlay.
+if [[ "${PRIMARY_TRAIN}" == "${DATASET}" ]]; then
+    DEFAULT_EARLY_EXIT_METRICS="./early_exit_results/${MODEL}_${DATASET}/early_exit_metrics.json"
+else
+    primary_tagged="./early_exit_results/${MODEL}_train-${PRIMARY_TRAIN}_test-${DATASET}/early_exit_metrics.json"
+    legacy="./early_exit_results/${MODEL}_${DATASET}/early_exit_metrics.json"
+    if [[ -f "${primary_tagged}" ]]; then
+        DEFAULT_EARLY_EXIT_METRICS="${primary_tagged}"
+    elif [[ -f "${legacy}" ]]; then
+        echo "[warn] train-tagged baseline missing, falling back to ${legacy}" >&2
+        echo "       (this baseline may have been scored on a different subset)" >&2
+        DEFAULT_EARLY_EXIT_METRICS="${legacy}"
+    else
+        DEFAULT_EARLY_EXIT_METRICS="${primary_tagged}"   # will trip the "missing" warn below
+    fi
+fi
+EARLY_EXIT_METRICS=${EARLY_EXIT_METRICS:-${DEFAULT_EARLY_EXIT_METRICS}}
+
+mkdir -p "${OUTPUT_DIR}"
 
 # ---------------------------------------------------------------------------
 # Optional: run training first, once per TRAIN_DATASET source.
@@ -104,8 +137,19 @@ if [[ ! -d "${EMBED_DIR}" || -z "$(ls -A "${EMBED_DIR}"/*.pt 2>/dev/null || true
 fi
 
 OVERLAY_FLAGS=()
-if [[ "${OVERLAY_BASELINES}" == "1" && -f "${EARLY_EXIT_METRICS}" ]]; then
-    OVERLAY_FLAGS+=("--early_exit_metrics" "${EARLY_EXIT_METRICS}")
+if [[ "${OVERLAY_BASELINES}" == "1" ]]; then
+    if [[ -f "${EARLY_EXIT_METRICS}" ]]; then
+        OVERLAY_FLAGS+=("--early_exit_metrics" "${EARLY_EXIT_METRICS}")
+    else
+        echo "[warn] binary-probe baseline not found at ${EARLY_EXIT_METRICS}" >&2
+        echo "       run: MODEL=${MODEL} DATASET=${PRIMARY_TRAIN} TEST_DATASET=${DATASET} bash eval_early_exit.sh" >&2
+    fi
+fi
+
+if [[ "${PRIMARY_TRAIN}" == "${DATASET}" && ${#TRAIN_DATASETS[@]} -eq 1 ]]; then
+    TITLE_SUFFIX="${MODEL} / ${DATASET}"
+else
+    TITLE_SUFFIX="${MODEL} / train:${TRAIN_DATASET} -> test:${DATASET}"
 fi
 
 echo "Model        : ${MODEL}"
@@ -114,6 +158,7 @@ echo "Formulation  : ${FORMULATION}"
 echo "Train sources: ${TRAIN_DATASETS[*]}"
 echo "Selection by : ${SELECTION_METRIC}"
 echo "Embed dir    : ${EMBED_DIR}  (cached hidden states, no LM forward)"
+echo "Baseline     : ${EARLY_EXIT_METRICS}"
 echo "Output dir   : ${OUTPUT_DIR}"
 echo
 
@@ -125,5 +170,5 @@ python -u src/plot_stopping_policy.py \
     --labeled_data_path "${LABELED_DATA_PATH}" \
     --output_dir "${OUTPUT_DIR}" \
     --selection_metric "${SELECTION_METRIC}" \
-    --title_suffix "${MODEL} / ${DATASET}" \
+    --title_suffix "${TITLE_SUFFIX}" \
     "${OVERLAY_FLAGS[@]}"

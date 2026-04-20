@@ -245,7 +245,14 @@ def _aggregate_selection(
             continue
 
         correct_flags.append(label)
-        sel = ex["cum_tokens"][idx]
+        # The cap models the generation budget the model would actually
+        # have spent if run to completion.  It must be applied symmetrically
+        # to both the early-exit cost and the full-trace cost, otherwise
+        # examples whose natural trace exceeds the cap can produce
+        # ratio > 1 (and a nonsensical negative "reduction") -- including
+        # for the no-exit baseline itself, which by definition should
+        # always have ratio == 1.
+        sel = min(ex["cum_tokens"][idx], full_trace_tokens_cap)
         full = min(ex["cum_tokens"][-1], full_trace_tokens_cap)
         selected_tokens.append(sel)
         full_tokens.append(full)

@@ -1,0 +1,24 @@
+Job ID:        12207014
+Node:          node1625
+Working dir:   /home/aymelgad/reasoning_models_optimal_stopping
+Model:         gpt-5.4-mini
+Source model:  DeepSeek-R1-Distill-Qwen-1.5B
+Dataset:       math_500
+Data file:     ./initial_cot/DeepSeek-R1-Distill-Qwen-1.5B_math_500_rollout_temperature0.6.jsonl
+Segments:      ./processed_cot/segmented_CoT_DeepSeek-R1-Distill-Qwen-1.5B_math_500_rollout_temperature0.6_merged.json
+Save path:     ./labeled_cot
+Max tokens:    80000
+Poll interval: 60s
+id2ans: 500, id2reasoning: 500
+Wrote 500 batch requests to labeled_cot/_batch_openai/requests_DeepSeek-R1-Distill-Qwen-1.5B_math_500_rollout_temperature0.6.jsonl
+Uploaded input file: file-NnqvBwfdtDJ94yAH1kv5au
+Submitted batch job: batch_69e568eac16c8190925a476f6371b7a9
+[19:44:43] batch_69e568eac16c8190925a476f6371b7a9 status=validating completed=0/0 failed=0
+[19:45:43] batch_69e568eac16c8190925a476f6371b7a9 status=in_progress completed=26/500 failed=0
+[19:46:43] batch_69e568eac16c8190925a476f6371b7a9 status=in_progress completed=172/500 failed=0
+[19:47:43] batch_69e568eac16c8190925a476f6371b7a9 status=finalizing completed=500/500 failed=0
+[19:48:43] batch_69e568eac16c8190925a476f6371b7a9 status=completed completed=500/500 failed=0
+Downloaded results to labeled_cot/_batch_openai/results_DeepSeek-R1-Distill-Qwen-1.5B_math_500_rollout_temperature0.6.jsonl
+Parsed 500 items, skipped 0
+Saved 500 labeled items to ./labeled_cot/labeled_intermediate_answers_DeepSeek-R1-Distill-Qwen-1.5B_math_500_rollout_temperature0.6.jsonl
+All tasks complete

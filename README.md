@@ -462,7 +462,27 @@ If you find our code or data useful, please cite our paper:
 }
 ```
 
-Commands for evaluating:
+Example of commands in order for training and eval:
+To process the initial cots into chunks:
+
+bash get_reasoning_chunks.sh --model DeepSeek-R1-Distill-Qwen-1.5B --data math_500 --delete_chunks true
+
+To label the COTs using openAI batch API:
+
+sbatch --export=ALL,MODEL=DeepSeek-R1-Distill-Qwen-1.5B,DATA=math_500 label_answer_openai_batch.sbatch
+
+To process the embeddings of the model on the dataset:
+
+MODEL=DeepSeek-R1-Distill-Qwen-1.5B DATASET=math_500 bash get_representation.sh
+
+To train the optimal stopping networks:
+MODEL=DeepSeek-R1-Distill-Qwen-1.5B DATASET=math-train bash train_stopping_policy.sh
+
+To get early exit plots for the classifier prob first:
+
+MODEL=DeepSeek-R1-Distill-Qwen-1.5B DATASET=math-train TEST_DATASET=math_500 bash eval_early_exit.sh
+
+To get early exit probes for the stopping algos as well:
 
 MODEL=DeepSeek-R1-Distill-Qwen-1.5B DATASET=math-train bash eval_stopping_per_lambda.sh
 

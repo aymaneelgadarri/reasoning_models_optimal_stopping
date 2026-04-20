@@ -31,7 +31,7 @@ set -euo pipefail
 mkdir -p slurm_logs
 
 MODEL=${MODEL:-DeepSeek-R1-Distill-Qwen-1.5B}
-DATA=${DATA:-math-train}
+DATA=${DATA:-math_500}
 TEMPERATURE=${TEMPERATURE:-0.6}
 
 SAVE_PATH=${SAVE_PATH:-./labeled_cot}

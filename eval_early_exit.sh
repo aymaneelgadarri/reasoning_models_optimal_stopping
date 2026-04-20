@@ -7,6 +7,11 @@
 #   MODEL_NAME=DeepSeek-R1-Distill-Qwen-1.5B DATASET=math-train \
 #     bash eval_early_exit.sh
 #
+# Cross-dataset evaluation (probe trained on DATASET, scored on TEST_DATASET):
+#   MODEL_NAME=DeepSeek-R1-Distill-Qwen-1.5B \
+#     DATASET=math-train TEST_DATASET=math_500 \
+#     bash eval_early_exit.sh
+#
 # The script auto-discovers the binary probe checkpoint from
 #   ./grid_search/${MODEL_NAME}_${DATASET}/grid_search_result.jsonl
 # picking the row with the best ${SELECTION_METRIC} (default best_val_acc).
@@ -19,20 +24,33 @@
 
 set -euo pipefail
 
-MODEL_NAME=${MODEL_NAME:-DeepSeek-R1-Distill-Qwen-1.5B}
+MODEL_NAME=${MODEL:-DeepSeek-R1-Distill-Qwen-1.5B}
 DATASET=${DATASET:-math-train}
 TEMPERATURE=${TEMPERATURE:-0.6}
+TEST_DATASET=${TEST_DATASET:-${DATASET}}
 
 MODEL_PATH=${MODEL_PATH:-$HOME/models/${MODEL_NAME}}
-LABELED_DATA_PATH=${LABELED_DATA_PATH:-./labeled_cot/labeled_intermediate_answers_${MODEL_NAME}_${DATASET}_rollout_temperature${TEMPERATURE}.jsonl}
-EMBED_DIR=${EMBED_DIR:-./model_embeds/${MODEL_NAME}_${DATASET}}
+LABELED_DATA_PATH=${LABELED_DATA_PATH:-./labeled_cot/labeled_intermediate_answers_${MODEL_NAME}_${TEST_DATASET}_rollout_temperature${TEMPERATURE}.jsonl}
+# Cached embeddings must match the dataset being *scored* (TEST_DATASET),
+# not the dataset the probe was trained on.
+EMBED_DIR=${EMBED_DIR:-./model_embeds/${MODEL_NAME}_${TEST_DATASET}}
 GRID_RESULT=${GRID_RESULT:-./grid_search/${MODEL_NAME}_${DATASET}/grid_search_result.jsonl}
 SELECTION_METRIC=${SELECTION_METRIC:-best_val_acc}
-OUTPUT_DIR=${OUTPUT_DIR:-./early_exit_results/${MODEL_NAME}_${DATASET}}
+# When evaluating cross-dataset, tag the output dir with both train+test sets
+# so a probe trained on a different DATASET does not overwrite previous runs.
+if [[ "${DATASET}" == "${TEST_DATASET}" ]]; then
+    DEFAULT_OUTPUT_DIR="./early_exit_results/${MODEL_NAME}_${TEST_DATASET}"
+else
+    DEFAULT_OUTPUT_DIR="./early_exit_results/${MODEL_NAME}_train-${DATASET}_test-${TEST_DATASET}"
+fi
+OUTPUT_DIR=${OUTPUT_DIR:-${DEFAULT_OUTPUT_DIR}}
+
+echo "[eval_early_exit] probe trained on '${DATASET}', evaluating on '${TEST_DATASET}'"
+echo "[eval_early_exit] output dir: ${OUTPUT_DIR}"
 
 BATCH_SIZE=${BATCH_SIZE:-8}
 MAX_EXAMPLES=${MAX_EXAMPLES:--1}
-MAX_GEN_TOKENS=${MAX_GEN_TOKENS:-10000}
+MAX_GEN_TOKENS=${MAX_GEN_TOKENS:-100000}
 THRESHOLDS=${THRESHOLDS:-0.50,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,0.99}
 STATIC_K_VALUES=${STATIC_K_VALUES:-1,2,3,4,5,6,7,8,9,10}
 SEED=${SEED:-42}
@@ -104,6 +122,12 @@ python -u src/eval_early_exit.py \
     --seed "${SEED}" \
     "${EXTRA_FLAGS[@]}"
 
+if [[ "${DATASET}" == "${TEST_DATASET}" ]]; then
+    PLOT_TITLE_SUFFIX="${MODEL_NAME} / ${TEST_DATASET}"
+else
+    PLOT_TITLE_SUFFIX="${MODEL_NAME} / probe:${DATASET} -> test:${TEST_DATASET}"
+fi
+
 python -u src/plot_early_exit.py \
     --metrics_path "${OUTPUT_DIR}/early_exit_metrics.json" \
-    --title_suffix "${MODEL_NAME} / ${DATASET}"
+    --title_suffix "${PLOT_TITLE_SUFFIX}"

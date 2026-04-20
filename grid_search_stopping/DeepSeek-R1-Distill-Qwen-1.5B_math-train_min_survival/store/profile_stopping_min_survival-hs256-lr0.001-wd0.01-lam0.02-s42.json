@@ -1,0 +1,73 @@
+{
+  "args": {
+    "labeled_data_path": "./labeled_cot/labeled_intermediate_answers_DeepSeek-R1-Distill-Qwen-1.5B_math-train_rollout_temperature0.6.jsonl",
+    "embed_dir": "./model_embeds/DeepSeek-R1-Distill-Qwen-1.5B_math-train",
+    "model_name": "DeepSeek-R1-Distill-Qwen-1.5B",
+    "save_model_path": "./grid_search_stopping/DeepSeek-R1-Distill-Qwen-1.5B_math-train_min_survival/checkpoints",
+    "store_path": "./grid_search_stopping/DeepSeek-R1-Distill-Qwen-1.5B_math-train_min_survival/store",
+    "formulation": "min_survival",
+    "epochs": 200,
+    "lr": 0.001,
+    "wd": 0.01,
+    "hidden_size": 256,
+    "lambda_penalty": 0.02,
+    "seed": 42,
+    "val_frac": 0.2,
+    "max_examples": null,
+    "patience": 10,
+    "no_fold_tail": false
+  },
+  "formulation": "min_survival",
+  "train_loss": [
+    -0.6620519436298511,
+    -0.6712998032083077,
+    -0.6949528030328631,
+    -0.6617745225090375,
+    -0.6787278065733838,
+    -0.6581230473976176,
+    -0.6987743934286909,
+    -0.6589392175350371,
+    -0.6636442757337906,
+    -0.6884097839386545,
+    -0.6953359667156305
+  ],
+  "val_expected_reward": [
+    0.705721588370077,
+    0.6307576006414457,
+    0.6307722559101226,
+    0.6284685793882646,
+    0.6502745750804471,
+    0.705564522300785,
+    0.6308972022328374,
+    0.6300669053644032,
+    0.7043226519650371,
+    0.6301573356332074,
+    0.7046165750483245
+  ],
+  "val_argmax_accuracy": [
+    0.7261904761904762,
+    0.6309523809523809,
+    0.6309523809523809,
+    0.6309523809523809,
+    0.7202380952380952,
+    0.7202380952380952,
+    0.6309523809523809,
+    0.6309523809523809,
+    0.7202380952380952,
+    0.6309523809523809,
+    0.7202380952380952
+  ],
+  "val_no_exit_accuracy": [
+    0.8333333333333334,
+    0.8333333333333334,
+    0.8333333333333334,
+    0.8333333333333334,
+    0.8333333333333334,
+    0.8333333333333334,
+    0.8333333333333334,
+    0.8333333333333334,
+    0.8333333333333334,
+    0.8333333333333334,
+    0.8333333333333334
+  ]
+}
